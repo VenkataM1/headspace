@@ -1,7 +1,8 @@
-package com.learning.headspace
+package com.learning.headspace.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.learning.headspace.R
 
 class MainActivity : AppCompatActivity() {
 
