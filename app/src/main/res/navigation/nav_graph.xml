@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@+id/picSumFragment">
+
+    <fragment
+        android:id="@+id/picSumFragment"
+        android:label="Pic Sum"
+        android:name="com.learning.headspace.view.PicSumFragment"
+        tools:layout="@layout/pic_sum_fragment" />
+
+</navigation>
