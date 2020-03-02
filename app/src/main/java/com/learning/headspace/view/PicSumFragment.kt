@@ -7,10 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 
 import com.learning.headspace.R
+import com.learning.headspace.repository.dataBase.DataProviderManager
+import com.learning.headspace.repository.Repository
 import com.learning.headspace.view.adapter.PicSumAdapter
 import com.learning.headspace.viewmodel.PicSumViewModel
 import kotlinx.android.synthetic.main.pic_sum_fragment.*
@@ -41,7 +44,15 @@ class PicSumFragment : Fragment() {
     private fun configureUI() {
         progressBar.visibility  = View.VISIBLE
         picSumAdapter = PicSumAdapter(requireContext())
-        picSumViewModel = ViewModelProvider(this).get(PicSumViewModel::class.java)
+        picSumViewModel = ViewModelProvider(this,
+            CustomViewModelFactory(
+                Repository(
+                    DataProviderManager.getDb(
+                        requireContext()
+                    ).picSumDao()
+                )
+            ))
+            .get(PicSumViewModel::class.java)
         picSumRecyclerView.apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
             adapter = picSumAdapter
@@ -68,6 +79,14 @@ class PicSumFragment : Fragment() {
             statusMessage.visibility = View.GONE
             picSumRecyclerView.visibility = View.VISIBLE
         }
+    }
+
+}
+
+class CustomViewModelFactory(private val repo: Repository) : ViewModelProvider.NewInstanceFactory() {
+
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return PicSumViewModel(repo) as T
     }
 
 }

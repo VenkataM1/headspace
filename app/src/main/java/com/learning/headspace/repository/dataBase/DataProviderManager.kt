@@ -1,8 +1,7 @@
-package com.learning.headspace.repository
+package com.learning.headspace.repository.dataBase
 
 import android.content.Context
 import androidx.room.Room
-import com.learning.headspace.repository.dataBase.AppDatabase
 
 object DataProviderManager {
     fun getDb(context: Context): AppDatabase  =

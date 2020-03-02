@@ -6,32 +6,27 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.learning.headspace.repository.networking.Repository
+import com.learning.headspace.repository.Repository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import androidx.lifecycle.MutableLiveData
 import com.learning.headspace.model.PicSum
 import com.learning.headspace.R
-import com.learning.headspace.repository.dataBase.AppRepository
-import com.learning.headspace.repository.dataBase.PicSumDao
-import com.learning.headspace.repository.DataProviderManager
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
-class PicSumViewModel: ViewModel() {
+class PicSumViewModel(private val repo: Repository): ViewModel() {
 
     private val disposables = CompositeDisposable()
     private val responseLiveData = MutableLiveData<List<PicSum>>()
-    private lateinit var picSumDao:PicSumDao
     private val  statusMessage = MutableLiveData<String>()
 
     fun fetchPicSumData(context:Context) {
-         picSumDao = DataProviderManager.getDb(context).picSumDao()
          GlobalScope.launch(Dispatchers.Main) {
-             val picSums =  AppRepository(picSumDao).getAllPicSums()
+             val picSums =  repo.getAllPicSums()
              if (picSums.isEmpty()) {
                  getPicSumFromApi(context)
              }else {
@@ -48,13 +43,13 @@ class PicSumViewModel: ViewModel() {
    private fun getPicSumFromApi(context:Context) {
        if (isOnline(context)) {
            disposables.add(
-               Repository().loadPicSumData().observeOn(AndroidSchedulers.mainThread())
+               repo.loadPicSumData().observeOn(AndroidSchedulers.mainThread())
                    .subscribeOn(Schedulers.io())
                    .subscribe({ picSums ->
                        if (picSums.count() > 0 ) {
                            responseLiveData.value = picSums
                            GlobalScope.launch(Dispatchers.Main) {
-                               AppRepository(picSumDao).insertAllPicSums(picSums)
+                               repo.insertAllPicSums(picSums)
                            }
                        }else {
                            statusMessage.value = context.getString(R.string.data_empty)
