@@ -21,25 +21,31 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
-class PicSumViewModel(): ViewModel() {
+class PicSumViewModel: ViewModel() {
 
     private val disposables = CompositeDisposable()
     private val responseLiveData = MutableLiveData<List<PicSum>>()
-    lateinit var picSumDao:PicSumDao
+    private lateinit var picSumDao:PicSumDao
     private val  statusMessage = MutableLiveData<String>()
 
     fun fetchPicSumData(context:Context) {
          picSumDao = DataProviderManager.getDb(context).picSumDao()
          GlobalScope.launch(Dispatchers.Main) {
              val picSums =  AppRepository(picSumDao).getAllPicSums()
-             if (picSums.size == 0 ) {
+             if (picSums.isEmpty()) {
                  getPicSumFromApi(context)
              }else {
                  responseLiveData.value = picSums
              }
          }
     }
-    fun getPicSumFromApi(context:Context) {
+    fun getPicSumList(): LiveData<List<PicSum>> {
+        return responseLiveData
+    }
+    fun getStatusMessage(): LiveData<String> {
+        return statusMessage
+    }
+   private fun getPicSumFromApi(context:Context) {
        if (isOnline(context)) {
            disposables.add(
                Repository().loadPicSumData().observeOn(AndroidSchedulers.mainThread())
@@ -61,14 +67,8 @@ class PicSumViewModel(): ViewModel() {
        }
     }
 
-    fun getPicSumList(): LiveData<List<PicSum>> {
-        return responseLiveData
-    }
-    fun getStatusMessage(): LiveData<String> {
-        return statusMessage
-    }
+
    private fun isOnline(context: Context): Boolean {
-       if (context == null) return false
        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
            val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
